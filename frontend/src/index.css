@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Scrollbar for Sidebar */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #06b6d4, #14b8a6);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #22d3ee, #2dd4bf);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+/* Update this to a Dark Gray so it shows on White backgrounds */
+input::placeholder {
+  color: #a0a0a0 !important; /* Gray color */
+  opacity: 1;
+}
+
+/* Ensure the text inside the input is dark (when you type) */
+input {
+  color: #10314a !important; /* Dark Navy Text */
+}
