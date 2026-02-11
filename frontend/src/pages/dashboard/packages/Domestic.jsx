@@ -12,7 +12,6 @@ const Domestic = ({ userRole = "SUPER_ADMIN" }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-
   const canModify = userRole === "SUPER_ADMIN";
 
   const fetchDomesticPackages = async () => {
@@ -23,6 +22,7 @@ const Domestic = ({ userRole = "SUPER_ADMIN" }) => {
       const formattedData = res.map((item) => ({
         key: item.id,
         id: item.id,
+        packageType: "domestic",
         duration: item.duration,
         platinumSingle: item.platinumSingle ?? 0,
         platinumFamily: item.platinumFamily ?? 0,
@@ -50,7 +50,7 @@ const Domestic = ({ userRole = "SUPER_ADMIN" }) => {
       align: "center",
       render: (t) => <span className="font-bold text-[#10314a]">{t}</span>,
     },
-   
+
     {
       title: "Platinum Plan",
       children: [
@@ -107,7 +107,6 @@ const Domestic = ({ userRole = "SUPER_ADMIN" }) => {
       ],
     },
   ];
-
 
   const handleUpdateAPI = async (updatedRow) => {
     try {

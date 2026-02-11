@@ -3,7 +3,7 @@ import axios from "axios";
 const api = axios.create({
   // In Docker/production we proxy /api -> backend.
   // You can override via VITE_API_BASE_URL (e.g. https://api.example.com/api)
-  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
+  baseURL: "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },

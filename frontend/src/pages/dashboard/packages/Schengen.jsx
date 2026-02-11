@@ -12,19 +12,17 @@ const Schengen = ({ userRole = "SUPER_ADMIN" }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
- 
   const canModify = userRole === "SUPER_ADMIN";
-
 
   const fetchPackages = async () => {
     try {
       setLoading(true);
       const res = await getAllSchengenPackages();
 
-   
       const formattedData = res.packages.map((item) => ({
         key: item.id,
         id: item.id,
+        packageType: "schengen",
         duration: item.duration,
         maxStay: item.maxStay,
         diamondSingle: item.diamondSingle ?? 0,
@@ -46,29 +44,26 @@ const Schengen = ({ userRole = "SUPER_ADMIN" }) => {
     fetchPackages();
   }, []);
 
-
   const handleUpdate = async (updatedRow) => {
     try {
       const { key, ...payload } = updatedRow;
       await updateSchengenPackage(key, payload);
       message.success("Package updated successfully");
-      fetchPackages(); 
+      fetchPackages();
     } catch (err) {
       message.error(err.message || "Failed to update package");
     }
   };
 
- 
   const handleDelete = async (key) => {
     try {
       await deleteSchengenPackage(key);
       message.success("Package deleted successfully");
-      fetchPackages(); 
+      fetchPackages();
     } catch (err) {
       message.error(err.message || "Failed to delete package");
     }
   };
-
 
   const columns = [
     {

@@ -12,9 +12,7 @@ const RestOfWorld = ({ userRole = "SUPER_ADMIN" }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
- 
   const canModify = userRole === "SUPER_ADMIN";
-
 
   const fetchPackages = async () => {
     try {
@@ -24,6 +22,7 @@ const RestOfWorld = ({ userRole = "SUPER_ADMIN" }) => {
       const formattedData = res.map((item) => ({
         key: item.id,
         id: item.id,
+        packageType: "restofworld",
         duration: item.duration,
         maxStay: item.maxStay,
         diamondSingle: item.diamondSingle ?? 0,
@@ -44,12 +43,11 @@ const RestOfWorld = ({ userRole = "SUPER_ADMIN" }) => {
     fetchPackages();
   }, []);
 
- 
   const handleUpdate = async (updatedValues) => {
     try {
       await updateRestOfWorldPackage(updatedValues.id, updatedValues);
       message.success("Package updated successfully");
-      fetchPackages(); 
+      fetchPackages();
     } catch (err) {
       message.error(err.message || "Failed to update package");
     }

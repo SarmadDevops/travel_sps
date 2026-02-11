@@ -51,9 +51,9 @@ const Home = () => {
       setLoading(true);
       const result = await getAllMonthlyBusinessApi();
 
-      // Recharts ke liye format
+     
       const formatted = result.map(item => ({
-        name: item.month, // Jan, Feb ...
+        name: item.month, 
         sales: item.amount
       }));
 
