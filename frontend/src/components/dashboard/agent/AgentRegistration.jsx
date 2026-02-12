@@ -106,8 +106,9 @@ const ResponsiveAgentForm = () => {
       setShowForm(false);
       fetchAgents();
     } catch (err) {
-      messageApi.error("Failed to create agent");
-    } finally {
+  messageApi.error(err);
+}
+finally {
       setLoading(false);
     }
   };

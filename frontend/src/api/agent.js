@@ -3,10 +3,11 @@ import api from "./axios"; // import the axios instance
 // CREATE AGENT
 export const createAgentApi = async (agentData) => {
   try {
-    const response = await api.post("/agents", agentData); // your backend endpoint
-    return response.data; // return JSON data
+    const response = await api.post("/agents", agentData);
+    return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || error.message);
+    //  send backend message directly
+    throw error.response?.data?.message || "Failed to create agent";
   }
 };
 

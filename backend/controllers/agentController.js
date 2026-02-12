@@ -3,88 +3,7 @@ const { hashPassword } = require("../utils/password");
 const { handleSequelizeError } = require("../utils/sequelizeError");
 const { generateAgentCode } = require("../utils/agentCodeGenerator");
 
-// exports.createAgent = async (req, res) => {
-//   const {
-//     agentName,
-//     mobileNo,
-//     email,
-//     agentCnic,          
-//     dateOfEstablishment,
-//     dateOfOpening,
-//     password
-//   } = req.body;
-
-//   if (!agentName || !email || !password || !agentCnic) {
-//     return res.status(400).json({ message: "Required fields missing" });
-//   }
-
-//   const transaction = await sequelize.transaction();
-
-//   try {
-//     //  Email duplicate check
-//     const existingUser = await User.findOne({ where: { email } });
-//     if (existingUser) {
-//       await transaction.rollback();
-//       return res.status(409).json({ message: "User with this email already exists" });
-//     }
-
-//     //  CNIC duplicate check
-//     const existingAgent = await Agent.findOne({ where: { agentCnic } });
-//     if (existingAgent) {
-//       await transaction.rollback();
-//       return res.status(409).json({ message: "Agent with this CNIC already exists" });
-//     }
-
-//     const hashedPassword = await hashPassword(password);
-
-//     //  Generate agent code
-//     const agentCode = await generateAgentCode(transaction);
-
-//     const agent = await Agent.create(
-//       {
-//         agentCode,
-//         agentName,
-//         mobileNo,
-//         email,
-//         agentCnic,                //  save CNIC
-//         dateOfEstablishment,
-//         dateOfOpening,
-//         password: hashedPassword,
-//         adminId: req.user.id
-//       },
-//       { transaction }
-//     );
-
-//     const user = await User.create(
-//       {
-//         name: agentName,
-//         email,
-//         password: hashedPassword,
-//         role: "AGENT"
-//       },
-//       { transaction }
-//     );
-
-//     await transaction.commit();
-
-//     res.status(201).json({
-//       message: "Agent created successfully"
-//     });
-
-//   } catch (error) {
-//     await transaction.rollback();
-//     console.error(error);
-
-//     res.status(400).json({
-//       message: handleSequelizeError(error)
-//     });
-//   }
-// };
-
-// GET all agents for the admin
-
 exports.createAgent = async (req, res) => {
-
   const {
     agentName,
     mobileNo,
@@ -93,30 +12,65 @@ exports.createAgent = async (req, res) => {
     dateOfEstablishment,
     dateOfOpening,
     password,
-      city,       
-    address ,
-     commissionSlab 
+    city,
+    address,
+    commissionSlab
   } = req.body;
+
+  if (!agentName || !mobileNo || !email || !agentCnic || !password) {
+    return res.status(400).json({ message: "Required fields missing" });
+  }
 
   const transaction = await sequelize.transaction();
 
   try {
-    //  Get admin (from token)
+    //  Get admin from token
     const admin = await User.findByPk(req.user.id);
 
     if (!admin || admin.role !== "ADMIN") {
+      await transaction.rollback();
       return res.status(403).json({ message: "Only admin can create agent" });
     }
 
     if (!admin.branchId) {
+      await transaction.rollback();
       return res.status(400).json({ message: "Admin is not linked with any branch" });
     }
 
-    //  Generate agent code
+    //  CHECK duplicate EMAIL
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      await transaction.rollback();
+      return res.status(409).json({
+        message: "Agent with this email already exists"
+      });
+    }
+
+    // CHECK duplicate CNIC
+    const existingCnic = await Agent.findOne({ where: { agentCnic } });
+    if (existingCnic) {
+      await transaction.rollback();
+      return res.status(409).json({
+        message: "Agent with this CNIC already exists"
+      });
+    }
+
+    //  CHECK duplicate MOBILE
+    const existingMobile = await Agent.findOne({ where: { mobileNo } });
+    if (existingMobile) {
+      await transaction.rollback();
+      return res.status(409).json({
+        message: "Agent with this mobile number already exists"
+      });
+    }
+
+    // 🔢 Generate agent code
     const agentCode = await generateAgentCode(transaction);
+
+    //  Hash password
     const hashedPassword = await hashPassword(password);
 
-    //  CREATE AGENT (branchId AUTO)
+    //  CREATE AGENT
     const agent = await Agent.create({
       agentCode,
       agentName,
@@ -125,35 +79,44 @@ exports.createAgent = async (req, res) => {
       agentCnic,
       dateOfEstablishment,
       dateOfOpening,
-       city,         
-      address ,
-       commissionSlab,
+      city,
+      address,
+      commissionSlab,
       password: hashedPassword,
       adminId: admin.id,
-      branchId: admin.branchId   //  KEY LINE
+      branchId: admin.branchId
     }, { transaction });
 
-    //  CREATE USER (AGENT) WITH SAME branchId
+    //  CREATE USER (AGENT LOGIN)
     await User.create({
       name: agentName,
       email,
       password: hashedPassword,
       role: "AGENT",
-      branchId: admin.branchId   //  KEY LINE
+      branchId: admin.branchId,
+      isActive: true
     }, { transaction });
 
     await transaction.commit();
 
     res.status(201).json({
+      success: true,
       message: "Agent created successfully",
       agentCode: agent.agentCode
     });
 
   } catch (error) {
     await transaction.rollback();
-    res.status(400).json({ message: handleSequelizeError(error) });
+    console.error(error);
+
+    res.status(400).json({
+      message: handleSequelizeError(error)
+    });
   }
 };
+
+// GET all agents for the admin
+
 
 exports.getAllAgents = async (req, res) => {
   try {
