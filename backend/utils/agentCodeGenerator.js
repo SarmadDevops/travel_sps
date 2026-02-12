@@ -7,7 +7,7 @@ const generateAgentCode = async (transaction) => {
     transaction
   });
 
-  let nextCode = 1472; // 🔥 starting number
+  let nextCode = 1472; //  starting number
 
   if (lastAgent?.agentCode) {
     nextCode = parseInt(lastAgent.agentCode, 10) + 1;
